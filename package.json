@@ -2,9 +2,8 @@
   "name": "tdk-boilerplate",
   "version": "1.0.0",
   "type": "module",
-  "main": "src/index.ts",
   "scripts": {
-    "start": "node src"
+    "start": "node src/server.js"
   },
   "dependencies": {
     "chalk": "^5.0.1",
