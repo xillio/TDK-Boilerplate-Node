@@ -1,4 +1,4 @@
-import { Application } from "./Application";
+import { Application } from "./Application.js";
 
 const app = new Application({
     port: 8000,
