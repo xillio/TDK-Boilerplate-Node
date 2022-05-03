@@ -14,12 +14,15 @@ export class Application {
 
     // Error handler.
     handleError(err, _req, res, _next) {
-        console.error(err);
-        res.status(200).send(createErrorResponse(JsonRpcProtocolVersion.V2_0, '', ErrorCodes.INVALID_QUERY, err.message));
+        res.status(200).send(createErrorResponse(
+            JsonRpcProtocolVersion.V2_0,
+            '', // id is unknown as this is likely a JSON parse error.
+            ErrorCodes.INVALID_QUERY,
+            'Invalid request body',
+            { reason: err.message }));
     }
 
     constructor(config) {
-        this.registerEvents();
         this.config = config;
 
         this.express = express();
@@ -33,6 +36,7 @@ export class Application {
 
     start() {
         console.log('Starting @' + chalk.underline(this.config.path));
+        this.registerEvents();
         this.express.listen(this.config.port);
     }
 
