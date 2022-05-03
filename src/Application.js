@@ -4,6 +4,7 @@ import express from "express";
 import chalk from "chalk";
 
 export class Application {
+
     // Helper to handle signals.
     registerEvents() {
         process.on('SIGTERM', this.stop.bind(this));
@@ -17,9 +18,8 @@ export class Application {
         res.status(200).send(createErrorResponse(
             JsonRpcProtocolVersion.V2_0,
             '', // id is unknown as this is likely a JSON parse error.
-            ErrorCodes.INVALID_QUERY,
-            'Invalid request body',
-            { reason: err.message }));
+            ErrorCodes.INVALID_CONFIGURATION,
+            err.message));
     }
 
     // Request handler.

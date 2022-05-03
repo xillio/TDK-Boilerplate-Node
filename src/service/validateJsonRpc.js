@@ -1,4 +1,12 @@
-import { JsonRpcMethodList, JsonRpcProtocolVersionList } from "../http/index.js";
+import { ErrorCodes, JsonRpcMethodList, JsonRpcProtocolVersion, JsonRpcProtocolVersionList, createErrorResponse } from "../http/index.js";
+
+function isNumber(value) {
+    return typeof value === 'number';
+}
+
+function isArray(value) {
+    return Array.isArray(value);
+}
 
 function isObject(value) {
     return typeof value === 'object' && !Array.isArray(value) && value !== null;
@@ -8,16 +16,36 @@ function isString(value) {
     return typeof value === 'string' || value instanceof String;
 }
 
-export function validateJsonRpcHeader(body) {
-    if (!JsonRpcProtocolVersionList.includes(body.jsonrpc))
-        throw new Error('Unsupported or missing JSON-RPC protocol version');
+function getError(id, msg, code) {
+    return createErrorResponse(
+        JsonRpcProtocolVersion.V2_0,
+        id ?? '',
+        code ?? ErrorCodes.INVALID_CONFIGURATION,
+        msg ?? 'Invalid request body');
+}
 
-    if (!isString(body.id))
-        throw new Error('Invalid or missing request identifier string');
+export function validateJsonRpc(body) {
+
+    // Validate RPC header.
+    if (!JsonRpcProtocolVersionList.includes(body.jsonrpc))
+        return getError(body.id, 'Unsupported or missing JSON-RPC protocol version');
+
+    if (!isNumber(body.id) && !isString(body.id))
+        return getError(body.id, 'Invalid or missing request identifier');
 
     if (!JsonRpcMethodList.includes(body.method))
-        throw new Error('Unsupported or missing JSON-RPC method');
+        return getError(body.id, 'Unsupported or missing JSON-RPC method');
 
     if (!isObject(body.params))
-        throw new Error('Invalid or missing request parameters value');
+        return getError(body.id, 'Invalid or missing request parameters value');
+
+    // Validate RPC parameters.
+    if (body.params.config) {
+        if (!isObject(body.params.config))
+            return getError(body.id, 'Invalid or missing config parameter');
+
+        for (const c of Object.values(body.params.config))
+            if (isArray(c) || isObject(c))
+                return getError(body.id, 'Config parameter does not support array values or nested objects');
+    }
 }
