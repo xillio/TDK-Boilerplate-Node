@@ -24,9 +24,14 @@ export class Application {
 
     // Request handler.
     handleRequest(req, res, next) {
-        console.log('Received request @' + chalk.underline(this.config.path) + ' with body:');
+        console.log(chalk.bold('Received request @') + chalk.underline(this.config.path) + ' with body:');
         console.dir(req.body, { depth: null });
-        this.controller.handleJsonRpcRequest(req, res);
+        const resValue = this.controller.handleJsonRpcRequest(req.body);
+
+        console.log(chalk.bold('Responding with:'));
+        console.dir(resValue, { depth: null });
+        res.status(200).send(resValue);
+
         next();
     }
 
@@ -43,13 +48,13 @@ export class Application {
     }
 
     start() {
-        console.log('Starting @' + chalk.underline(this.config.path));
+        console.log(chalk.bold('Starting @') + chalk.underline(this.config.path));
         this.registerEvents();
         this.express.listen(this.config.port);
     }
 
     stop() {
-        console.log('Stopping @' + chalk.underline(this.config.path));
+        console.log(chalk.bold('Stopping @') + chalk.underline(this.config.path));
         process.exit();
     }
 }

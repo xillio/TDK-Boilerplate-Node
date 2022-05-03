@@ -4,21 +4,21 @@ import { validateRequestBody } from "../service/index.js";
 export class Controller {
 
     // POST endpoint to handle any JSON RPC request.
-    handleJsonRpcRequest(req, res) {
+    handleJsonRpcRequest(body) {
         try {
-            validateRequestBody(req.body);
-            res.status(200).send(createSuccessResponse(
+            validateRequestBody(body);
+            return createSuccessResponse(
                 JsonRpcProtocolVersion.V2_0,
-                req.body.id,
-                'Request successful'));
+                body.id,
+                'Request successful');
 
         } catch (err) {
-            res.status(200).send(createErrorResponse(
+            return createErrorResponse(
                 JsonRpcProtocolVersion.V2_0,
-                req.body.id ?? '',
+                body.id ?? '',
                 ErrorCodes.INVALID_QUERY,
                 'Invalid request body',
-                { reason: err.message }));
+                { reason: err.message });
         }
     }
 }
