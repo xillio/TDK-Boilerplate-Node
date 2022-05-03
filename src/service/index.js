@@ -1,2 +1,2 @@
 
-export * from "./validateRequestBody.js";
+export * from "./validateJsonRpc.js";

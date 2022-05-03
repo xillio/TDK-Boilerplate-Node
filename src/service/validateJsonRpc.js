@@ -8,7 +8,7 @@ function isString(value) {
     return typeof value === 'string' || value instanceof String;
 }
 
-export function validateRequestBody(body) {
+export function validateJsonRpcHeader(body) {
     if (!JsonRpcProtocolVersionList.includes(body.jsonrpc))
         throw new Error('Unsupported or missing JSON-RPC protocol version');
 
