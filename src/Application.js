@@ -22,6 +22,14 @@ export class Application {
             { reason: err.message }));
     }
 
+    // Request handler.
+    handleRequest(req, res, next) {
+        console.log('Received request @' + chalk.underline(this.config.path) + ' with body:');
+        console.dir(req.body, { depth: null });
+        this.controller.handleJsonRpcRequest(req, res);
+        next();
+    }
+
     constructor(config) {
         this.config = config;
 
@@ -31,7 +39,7 @@ export class Application {
         this.express.use(this.handleError.bind(this));
 
         this.controller = new Controller();
-        this.express.post(this.config.path, this.controller.handleJsonRpcRequest.bind(this.controller));
+        this.express.post(this.config.path, this.handleRequest.bind(this));
     }
 
     start() {

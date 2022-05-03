@@ -4,7 +4,7 @@ import { validateRequestBody } from "../service/index.js";
 export class Controller {
 
     // POST endpoint to handle any JSON RPC request.
-    handleJsonRpcRequest(req, res, next) {
+    handleJsonRpcRequest(req, res) {
         try {
             validateRequestBody(req.body);
             res.status(200).send(createSuccessResponse(
@@ -20,7 +20,5 @@ export class Controller {
                 'Invalid request body',
                 { reason: err.message }));
         }
-
-        next();
     }
 }
