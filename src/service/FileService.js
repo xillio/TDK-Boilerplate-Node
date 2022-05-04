@@ -1,7 +1,7 @@
-import { ContentService } from "./index.js";
+import ContentService from "./ContentService.js";
 import { ProtocolVersion, createSuccessResponse } from "../jsonrpc/index.js";
 
-export class FileService extends ContentService {
+export default class FileService extends ContentService {
 
     get(id, params) {
         return createSuccessResponse(

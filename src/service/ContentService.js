@@ -1,5 +1,5 @@
 
-export class ContentService {
+export default class ContentService {
 
     get(_id, _params) {
         throw new Error(this.constructor.name + ` 'get' method not implemented.`);

@@ -1,6 +1,5 @@
 import { Controller } from "./controller/index.js";
 import { ErrorCodes, ProtocolVersion, createErrorResponse } from "./jsonrpc/index.js";
-import { FileService } from "./service/index.js";
 import express from "express";
 import chalk from "chalk";
 
@@ -38,24 +37,27 @@ export class Application {
 
     constructor(config) {
         this.config = config;
+        this.controller = null;
 
         this.express = express();
         this.express.disable('x-powered-by');
         this.express.use(express.json());
         this.express.use(this.handleError.bind(this));
-
-        this.controller = new Controller(new FileService());
-        this.express.post(this.config.path, this.handleRequest.bind(this));
     }
 
-    start() {
-        console.log(chalk.bold('Starting @') + chalk.underline(this.config.path));
+    async start() {
+        console.log(chalk.bold('Starting ' + this.config.service + ' @') + chalk.underline(this.config.path));
         this.registerEvents();
+
+        const service = await import('./service/' + this.config.service + '.js');
+        this.controller = new Controller(new service.default);
+
+        this.express.post(this.config.path, this.handleRequest.bind(this));
         this.express.listen(this.config.port);
     }
 
-    stop() {
-        console.log(chalk.bold('Stopping @') + chalk.underline(this.config.path));
+    async stop() {
+        console.log(chalk.bold('Stopping ' + this.config.service + ' @') + chalk.underline(this.config.path));
         process.exit();
     }
 }
