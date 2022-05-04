@@ -1,5 +1,5 @@
 import { Controller } from "./controller/index.js";
-import { ErrorCodes, JsonRpcProtocolVersion, createErrorResponse } from "./http/index.js";
+import { ErrorCodes, ProtocolVersion, createErrorResponse } from "./jsonrpc/index.js";
 import express from "express";
 import chalk from "chalk";
 
@@ -16,7 +16,7 @@ export class Application {
     // Error handler.
     handleError(err, _req, res, _next) {
         res.status(200).send(createErrorResponse(
-            JsonRpcProtocolVersion.V2_0,
+            ProtocolVersion.V2_0,
             '', // id is unknown as this is likely a JSON parse error.
             ErrorCodes.INVALID_CONFIGURATION,
             err.message));

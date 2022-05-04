@@ -1,4 +1,4 @@
-import { ErrorCodes, JsonRpcMethodList, JsonRpcProtocolVersion, JsonRpcProtocolVersionList, createErrorResponse } from "../http/index.js";
+import { ErrorCodes, Method, ProtocolVersion, createErrorResponse } from "./index.js";
 
 function isNumber(value) {
     return typeof value === 'number';
@@ -18,22 +18,22 @@ function isString(value) {
 
 function getError(id, msg, code) {
     return createErrorResponse(
-        JsonRpcProtocolVersion.V2_0,
+        ProtocolVersion.V2_0,
         id ?? '',
         code ?? ErrorCodes.INVALID_CONFIGURATION,
         msg ?? 'Invalid request body');
 }
 
-export function validateJsonRpc(body) {
+export function validate(body) {
 
     // Validate RPC header.
-    if (!JsonRpcProtocolVersionList.includes(body.jsonrpc))
+    if (!Object.values(ProtocolVersion).includes(body.jsonrpc))
         return getError(body.id, 'Unsupported or missing JSON-RPC protocol version');
 
     if (!isNumber(body.id) && !isString(body.id))
         return getError(body.id, 'Invalid or missing request identifier');
 
-    if (!JsonRpcMethodList.includes(body.method))
+    if (!Object.values(Method).includes(body.method))
         return getError(body.id, 'Unsupported or missing JSON-RPC method');
 
     if (!isObject(body.params))

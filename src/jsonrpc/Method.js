@@ -1,5 +1,5 @@
 
-export const JsonRpcMethod = {
+export const Method = {
     ENTITY_GET: "entity.get",
     ENTITY_CREATE: "entity.create",
     ENTITY_UPDATE: "entity.update",
@@ -13,5 +13,3 @@ export const JsonRpcMethod = {
     PROCEDURE_GET_RPC_HANDLERS: "procedure.get-rpc-handlers",
     PROCEDURE_INVOKE_RPC: "procedure.invoke-rpc"
 };
-
-export const JsonRpcMethodList = Object.values(JsonRpcMethod);
