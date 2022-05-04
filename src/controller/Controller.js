@@ -1,4 +1,4 @@
-import { validate, ProtocolVersion, createSuccessResponse } from "../jsonrpc/index.js";
+import { validate, execute, ErrorCodes, ProtocolVersion, createErrorResponse } from "../jsonrpc/index.js";
 
 export class Controller {
 
@@ -7,9 +7,13 @@ export class Controller {
         const err = validate(body);
         if (err) return err;
 
-        return createSuccessResponse(
+        const res = execute(body);
+        if (res) return res;
+
+        return createErrorResponse(
             ProtocolVersion.V2_0,
             body.id,
-            'Request successful');
+            ErrorCodes.CONNECTOR_OPERATION_FAILED,
+            'Controller failed to execute JSON RPC');
     }
 }
