@@ -2,12 +2,16 @@ import { validate, execute, ErrorCodes, ProtocolVersion, createErrorResponse } f
 
 export class Controller {
 
+    constructor(service) {
+        this.service = service;
+    }
+
     // POST endpoint to handle any JSON RPC request.
     handleJsonRpcRequest(body) {
         const err = validate(body);
         if (err) return err;
 
-        const res = execute(body);
+        const res = execute(body, this.service);
         if (res) return res;
 
         return createErrorResponse(

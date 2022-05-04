@@ -1,5 +1,6 @@
 import { Controller } from "./controller/index.js";
 import { ErrorCodes, ProtocolVersion, createErrorResponse } from "./jsonrpc/index.js";
+import { FileService } from "./service/index.js";
 import express from "express";
 import chalk from "chalk";
 
@@ -43,7 +44,7 @@ export class Application {
         this.express.use(express.json());
         this.express.use(this.handleError.bind(this));
 
-        this.controller = new Controller();
+        this.controller = new Controller(new FileService());
         this.express.post(this.config.path, this.handleRequest.bind(this));
     }
 
