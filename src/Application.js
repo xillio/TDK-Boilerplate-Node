@@ -9,8 +9,6 @@ export class Application {
     registerEvents() {
         process.on('SIGTERM', this.stop.bind(this));
         process.on('SIGINT', this.stop.bind(this));
-        process.on('uncaughtException', (e) => console.error(e));
-        process.on('unhandledRejection', (r) => console.error(r));
     }
 
     // Error handler.
@@ -57,7 +55,7 @@ export class Application {
     }
 
     async stop() {
-        console.log(chalk.bold('Stopping ' + this.config.service + ' @') + chalk.underline(this.config.path));
+        console.log(chalk.bold('Stopping all services'));
         process.exit();
     }
 }
