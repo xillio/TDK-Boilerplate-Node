@@ -1,22 +1,35 @@
-import { ErrorCodes, Method, ProtocolVersion, ProjectionScope, createErrorResponse } from "./index.js";
+import { ErrorCodes, Method, ProtocolVersion, ProjectionScope, createErrorResponse, createSuccessResponse } from "./index.js";
 
 export function execute(body, service) {
+
+    function getResponse(result) {
+        return createSuccessResponse(
+            ProtocolVersion.V2_0,
+            body.id,
+            result ?? {});
+    }
+
+    // Try to execute it and properly respond.
     try {
         switch (body.method) {
             case Method.ENTITY_GET:
                 const scope = body.params.requestParameters?.projectionScopes?.[0];
                 switch (scope) {
                     case ProjectionScope.PATH_CHILDREN_REFERENCE:
-                        return service.getChildrenReference(body.id, body.params);
+                        return getResponse(service.getChildrenReference(body.params.config, body.params.xdip));
+
                     case ProjectionScope.PATH_CHILDREN_ENTITY:
-                        return service.getChildrenEntity(body.id, body.params);
+                        return getResponse(service.getChildrenEntity(body.params.config, body.params.xdip));
+
                     default:
-                        return service.get(body.id, body.params);
+                        return getResponse(service.get(body.params.config, body.params.xdip));
                 }
+
             case Method.ENTITY_GET_BINARY:
-                return service.getBinary(body.id, body.params);
+                return getResponse(service.getBinary(body.params.config, body.params.xdip) ?? '');
+
             case Method.ENTITY_CREATE:
-                return service.create(body.id, body.params);
+                return getResponse(service.create(body.params.config, body.params.entity, body.params.binaryContents));
         }
 
     } catch (err) {

@@ -28,57 +28,57 @@ function isDate(value) {
     return isString(value) && !isNaN(Date.parse(value));
 }
 
-function getError(id, msg, code, data) {
-    return createErrorResponse(
-        ProtocolVersion.V2_0,
-        id ?? '',
-        code ?? ErrorCodes.INVALID_CONFIGURATION,
-        msg ?? 'Invalid request body',
-        data);
-}
-
 export function validate(body) {
+
+    function getError(msg, code, data) {
+        return createErrorResponse(
+            ProtocolVersion.V2_0,
+            body.id ?? '',
+            code ?? ErrorCodes.INVALID_CONFIGURATION,
+            msg ?? 'Invalid request body',
+            data);
+    }
 
     // Validate RPC header.
     if (!Object.values(ProtocolVersion).includes(body.jsonrpc))
-        return getError(body.id, 'Unsupported or missing JSON-RPC protocol version');
+        return getError('Unsupported or missing JSON-RPC protocol version');
 
     if (!isNumber(body.id) && !isString(body.id))
-        return getError(body.id, 'Invalid or missing request identifier');
+        return getError('Invalid or missing request identifier');
 
     if (!Object.values(Method).includes(body.method))
-        return getError(body.id, 'Unsupported or missing JSON-RPC method');
+        return getError('Unsupported or missing JSON-RPC method');
 
     if (!isObject(body.params))
-        return getError(body.id, 'Invalid or missing request parameters value');
+        return getError('Invalid or missing request parameters value');
 
     // Validate config parameter.
     if (!isObject(body.params.config))
-        return getError(body.id, 'Invalid or missing config parameter');
+        return getError('Invalid or missing config parameter');
 
     for (const c of Object.values(body.params.config))
         if (isArray(c) || isObject(c))
-            return getError(body.id, 'Config parameter does not support array values or nested objects');
+            return getError('Config parameter does not support array values or nested objects');
 
     // Validate all other parameters.
     function validateXdip(params) {
         if (!isString(params.xdip))
-            return getError(body.id, 'Invalid or missing XDIP parameter');
+            return getError('Invalid or missing XDIP parameter');
     }
 
     function validateRequestParameters(params) {
         if (params.requestParameters) {
             if (!isObject(params.requestParameters))
-                return getError(body.id, 'Invalid request parameters');
+                return getError('Invalid request parameters');
 
             if (params.requestParameters.projectionScopes) {
                 if (!isArrayOf(params.requestParameters.projectionScopes, isString))
-                    return getError(body.id, 'Invalid projection scopes parameter');
+                    return getError('Invalid projection scopes parameter');
 
                 // Here we just take the first element of projectionScopes.
                 const scope = params.requestParameters.projectionScopes[0];
                 if (scope && !Object.values(ProjectionScope).includes(scope))
-                    return getError(body.id, 'Invalid or unsupported projection scope', ErrorCodes.NO_SUCH_SCOPE, { scope });
+                    return getError('Invalid or unsupported projection scope', ErrorCodes.NO_SUCH_SCOPE, { scope });
             }
 
             // Ignore projectionIncludes, projectionExcludes, offset and limit.
@@ -87,72 +87,72 @@ export function validate(body) {
 
     function validateDecorator(name, params) {
         if (!isObject(params))
-            return getError(body.id, `Invalid decorator: '` + name + `'`);
+            return getError(`Invalid decorator: '` + name + `'`);
 
         switch (name) {
             case 'container':
                 if (!isBoolean(params.hasChildren))
-                    return getError(body.id, 'Invalid or missing hasChildren parameter of container decorator');
+                    return getError('Invalid or missing hasChildren parameter of container decorator');
 
                 break;
 
             case 'contentType':
                 if (params.displayName && !isString(params.displayName))
-                    return getError(body.id, 'Invalid displayName parameter of contentType decorator');
+                    return getError('Invalid displayName parameter of contentType decorator');
 
                 if (!isString(params.systemName))
-                    return getError(body.id, 'Invalid or missing systemName parameter of contentType decorator');
+                    return getError('Invalid or missing systemName parameter of contentType decorator');
 
                 break;
 
             case 'created':
                 if (!isDate(params.date))
-                    return getError(body.id, 'Invalid or missing date parameter of created decorator');
+                    return getError('Invalid or missing date parameter of created decorator');
 
                 break;
 
             case 'file':
                 if (!isString(params.rawExtension))
-                    return getError(body.id, 'Invalid or missing rawExtension parameter of file decorator');
+                    return getError('Invalid or missing rawExtension parameter of file decorator');
 
                 if (!isNumber(params.size))
-                    return getError(body.id, 'Invalid or missing size parameter of file decorator');
+                    return getError('Invalid or missing size parameter of file decorator');
 
                 break;
 
             case 'language':
                 if (!isString(params.tag))
-                    return getError(body.id, 'Invalid or missing tag parameter of language decorator');
+                    return getError('Invalid or missing tag parameter of language decorator');
 
                 if (params.translationOf && !isString(params.translationOf))
-                    return getError(body.id, 'Invalid translationOf parameter of language decorator');
+                    return getError('Invalid translationOf parameter of language decorator');
 
                 break;
 
             case 'mimeType':
                 if (!isString(params.type))
-                    return getError(body.id, 'Invalid or missing type parameter of mimeType decorator');
+                    return getError('Invalid or missing type parameter of mimeType decorator');
 
                 break;
 
             case 'modified':
                 if (!isDate(params.date))
-                    return getError(body.id, 'Invalid or missing date parameter of modified decorator');
+                    return getError('Invalid or missing date parameter of modified decorator');
 
                 break;
 
             case 'name':
                 if (params.displayName && !isString(params.displayName))
-                    return getError(body.id, 'Invalid displayName parameter of name decorator');
+                    return getError('Invalid displayName parameter of name decorator');
 
                 if (!isString(params.systemName))
-                    return getError(body.id, 'Invalid or missing systemName parameter of name decorator');
+                    return getError('Invalid or missing systemName parameter of name decorator');
 
                 break;
 
             case 'parent':
                 if (!isString(params.id))
-                    return getError(body.id, 'Invalid or missing id parameter of parent decorator');
+                    return getError('Invalid or missing id parameter of parent decorator');
 
                 break;
 
@@ -162,13 +162,13 @@ export function validate(body) {
 
     function validateEntity(params) {
         if (!isObject(params.entity))
-            return getError(body.id, 'Invalid or missing entity parameter');
+            return getError('Invalid or missing entity parameter');
 
         if (!isString(params.entity.kind))
-            return getError(body.id, 'Invalid or missing entity kind parameter');
+            return getError('Invalid or missing entity kind parameter');
 
         if (!isObject(params.entity.original))
-            return getError(body.id, 'Invalid or missing entity original parameter');
+            return getError('Invalid or missing entity original parameter');
 
         for (const [name, decParams] of Object.entries(params.entity.original)) {
             const err = validateDecorator(name, decParams);
@@ -178,7 +178,7 @@ export function validate(body) {
 
     function validateBinaryContents(params) {
         if (params.binaryContents && !isString(params.binaryContents))
-            return getError(body.id, 'Invalid binary contents parameter');
+            return getError('Invalid binary contents parameter');
     }
 
     switch (body.method) {
@@ -189,7 +189,6 @@ export function validate(body) {
             return validateXdip(body.params);
 
         case Method.ENTITY_CREATE:
-            return validateXdip(body.params) ?? validateRequestParameters(body.params) ??
-                validateEntity(body.params) ?? validateBinaryContents(body.params);
+            return validateRequestParameters(body.params) ?? validateEntity(body.params) ?? validateBinaryContents(body.params);
     }
 }
