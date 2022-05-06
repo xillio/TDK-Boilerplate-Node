@@ -75,8 +75,8 @@ export function validate(body) {
                 if (!isArrayOf(params.requestParameters.projectionScopes, isString))
                     return getError(body.id, 'Invalid projection scopes parameter');
 
-                // Here we just take the last element of projectionScopes.
-                const scope = params.requestParameters.projectionScopes.at(-1);
+                // Here we just take the first element of projectionScopes.
+                const scope = params.requestParameters.projectionScopes[0];
                 if (scope && !Object.values(ProjectionScope).includes(scope))
                     return getError(body.id, 'Invalid or unsupported projection scope', ErrorCodes.NO_SUCH_SCOPE, { scope });
             }
