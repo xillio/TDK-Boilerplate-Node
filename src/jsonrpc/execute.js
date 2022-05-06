@@ -24,7 +24,7 @@ export function execute(body, service) {
         return createErrorResponse(
             ProtocolVersion.V2_0,
             body.id,
-            ErrorCodes.CONNECTOR_OPERATION_FAILED,
+            err.code ?? ErrorCodes.CONNECTOR_OPERATION_FAILED,
             err.message);
     }
 }
