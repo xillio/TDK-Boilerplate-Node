@@ -81,7 +81,6 @@ export function validate(body) {
     switch (body.method) {
         case Method.ENTITY_GET:
             return validateXdip(body.params) ?? validateRequestParameters(body.params);
-        case Method.ENTITY_DELETE:
         case Method.ENTITY_GET_BINARY:
             return validateXdip(body.params);
 
