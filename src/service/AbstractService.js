@@ -1,5 +1,5 @@
 
-export default class ContentService {
+export default class AbstractService {
 
     get(_id, _params) {
         throw new Error(this.constructor.name + ` 'get' method not implemented.`);
