@@ -4,6 +4,10 @@ function isNumber(value) {
     return typeof value === 'number';
 }
 
+function isBoolean(value) {
+    return typeof value === 'boolean';
+}
+
 function isArray(value) {
     return Array.isArray(value);
 }
@@ -18,6 +22,10 @@ function isObject(value) {
 
 function isString(value) {
     return typeof value === 'string' || value instanceof String;
+}
+
+function isDate(value) {
+    return isString(value) && !isNaN(Date.parse(value));
 }
 
 function getError(id, msg, code, data) {
@@ -77,6 +85,81 @@ export function validate(body) {
         }
     }
 
+    function validateDecorator(name, params) {
+        if (!isObject(params))
+            return getError(body.id, `Invalid decorator: '` + name + `'`);
+
+        switch (name) {
+            case 'container':
+                if (!isBoolean(params.hasChildren))
+                    return getError(body.id, 'Invalid or missing hasChildren parameter of container decorator');
+
+                break;
+
+            case 'contentType':
+                if (params.displayName && !isString(params.displayName))
+                    return getError(body.id, 'Invalid displayName parameter of contentType decorator');
+
+                if (!isString(params.systemName))
+                    return getError(body.id, 'Invalid or missing systemName parameter of contentType decorator');
+
+                break;
+
+            case 'created':
+                if (!isDate(params.date))
+                    return getError(body.id, 'Invalid or missing date parameter of created decorator');
+
+                break;
+
+            case 'file':
+                if (!isString(params.rawExtension))
+                    return getError(body.id, 'Invalid or missing rawExtension parameter of file decorator');
+
+                if (!isNumber(params.size))
+                    return getError(body.id, 'Invalid or missing size parameter of file decorator');
+
+                break;
+
+            case 'language':
+                if (!isString(params.tag))
+                    return getError(body.id, 'Invalid or missing tag parameter of language decorator');
+
+                if (params.translationOf && !isString(params.translationOf))
+                    return getError(body.id, 'Invalid translationOf parameter of language decorator');
+
+                break;
+
+            case 'mimeType':
+                if (!isString(params.type))
+                    return getError(body.id, 'Invalid or missing type parameter of mimeType decorator');
+
+                break;
+
+            case 'modified':
+                if (!isDate(params.date))
+                    return getError(body.id, 'Invalid or missing date parameter of modified decorator');
+
+                break;
+
+            case 'name':
+                if (params.displayName && !isString(params.displayName))
+                    return getError(body.id, 'Invalid displayName parameter of name decorator');
+
+                if (!isString(params.systemName))
+                    return getError(body.id, 'Invalid or missing systemName parameter of name decorator');
+
+                break;
+
+            case 'parent':
+                if (!isString(params.id))
+                    return getError(body.id, 'Invalid or missing id parameter of parent decorator');
+
+                break;
+
+            // Ignore unknown decorators.
+        }
+    }
+
     function validateEntity(params) {
         if (!isObject(params.entity))
             return getError(body.id, 'Invalid or missing entity parameter');
@@ -87,7 +170,10 @@ export function validate(body) {
         if (!isObject(params.entity.original))
             return getError(body.id, 'Invalid or missing entity original parameter');
 
-        // TODO: Validate all decorators.
+        for (const [name, decParams] of Object.entries(params.entity.original)) {
+            const err = validateDecorator(name, decParams);
+            if (err) return err;
+        }
     }
 
     function validateBinaryContents(params) {
