@@ -1,4 +1,4 @@
-import { ErrorCodes, Method, ProtocolVersion, createErrorResponse } from "./index.js";
+import { ErrorCodes, Method, ProtocolVersion, ProjectionScope, createErrorResponse } from "./index.js";
 
 function isNumber(value) {
     return typeof value === 'number';
@@ -20,12 +20,13 @@ function isString(value) {
     return typeof value === 'string' || value instanceof String;
 }
 
-function getError(id, msg, code) {
+function getError(id, msg, code, data) {
     return createErrorResponse(
         ProtocolVersion.V2_0,
         id ?? '',
         code ?? ErrorCodes.INVALID_CONFIGURATION,
-        msg ?? 'Invalid request body');
+        msg ?? 'Invalid request body',
+        data);
 }
 
 export function validate(body) {
@@ -44,14 +45,12 @@ export function validate(body) {
         return getError(body.id, 'Invalid or missing request parameters value');
 
     // Validate config parameter.
-    if (body.params.config) {
-        if (!isObject(body.params.config))
-            return getError(body.id, 'Invalid config parameter');
+    if (!isObject(body.params.config))
+        return getError(body.id, 'Invalid or missing config parameter');
 
-        for (const c of Object.values(body.params.config))
-            if (isArray(c) || isObject(c))
-                return getError(body.id, 'Config parameter does not support array values or nested objects');
-    }
+    for (const c of Object.values(body.params.config))
+        if (isArray(c) || isObject(c))
+            return getError(body.id, 'Config parameter does not support array values or nested objects');
 
     // Validate all other parameters.
     function validateXdip(params) {
@@ -64,26 +63,47 @@ export function validate(body) {
             if (!isObject(params.requestParameters))
                 return getError(body.id, 'Invalid request parameters');
 
-            if (params.requestParameters.projectionScopes)
+            if (params.requestParameters.projectionScopes) {
                 if (!isArrayOf(params.requestParameters.projectionScopes, isString))
                     return getError(body.id, 'Invalid projection scopes parameter');
 
-            if (params.requestParameters.projectionIncludes)
-                if (!isArrayOf(params.requestParameters.projectionIncludes, isString))
-                    return getError(body.id, 'Invalid projection includes parameter');
+                // Here we just take the last element of projectionScopes.
+                const scope = params.requestParameters.projectionScopes.at(-1);
+                if (scope && !Object.values(ProjectionScope).includes(scope))
+                    return getError(body.id, 'Invalid or unsupported projection scope', ErrorCodes.NO_SUCH_SCOPE, { scope });
+            }
 
-            if (params.requestParameters.projectionExcludes)
-                if (!isArrayOf(params.requestParameters.projectionExcludes, isString))
-                    return getError(body.id, 'Invalid projection excludes parameter');
+            // Ignore projectionIncludes, projectionExcludes, offset and limit.
         }
+    }
+
+    function validateEntity(params) {
+        if (!isObject(params.entity))
+            return getError(body.id, 'Invalid or missing entity parameter');
+
+        if (!isString(params.entity.kind))
+            return getError(body.id, 'Invalid or missing entity kind parameter');
+
+        if (!isObject(params.entity.original))
+            return getError(body.id, 'Invalid or missing entity original parameter');
+
+        // TODO: Validate all decorators.
+    }
+
+    function validateBinaryContents(params) {
+        if (params.binaryContents && !isString(params.binaryContents))
+            return getError(body.id, 'Invalid binary contents parameter');
     }
 
     switch (body.method) {
         case Method.ENTITY_GET:
             return validateXdip(body.params) ?? validateRequestParameters(body.params);
+
         case Method.ENTITY_GET_BINARY:
             return validateXdip(body.params);
 
-        // TODO: Validate all other methods as well.
+        case Method.ENTITY_CREATE:
+            return validateXdip(body.params) ?? validateRequestParameters(body.params) ??
+                validateEntity(body.params) ?? validateBinaryContents(body.params);
     }
 }
