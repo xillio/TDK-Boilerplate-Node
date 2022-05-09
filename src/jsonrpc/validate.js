@@ -34,6 +34,7 @@ export function validate(body) {
         return createErrorResponse(
             ProtocolVersion.V2_0,
             body.id ?? '',
+            body.params?.config ?? {},
             code ?? ErrorCodes.INVALID_CONFIGURATION,
             msg ?? 'Invalid request body',
             data);
@@ -64,6 +65,8 @@ export function validate(body) {
     function validateXdip(params) {
         if (!isString(params.xdip))
             return getError('Invalid or missing XDIP parameter');
+
+        // TODO: Do complete XDIP validation.
     }
 
     function validateRequestParameters(params) {

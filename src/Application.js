@@ -15,7 +15,7 @@ export class Application {
     handleError(err, _req, res, _next) {
         res.status(200).send(createErrorResponse(
             ProtocolVersion.V2_0,
-            '', // id is unknown as this is likely a JSON parse error.
+            '', {}, // id/config is unknown as this is likely a JSON parse error.
             ErrorCodes.INVALID_CONFIGURATION,
             err.message));
     }
