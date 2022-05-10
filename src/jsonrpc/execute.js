@@ -6,7 +6,6 @@ export function execute(body, service) {
         return createSuccessResponse(
             ProtocolVersion.V2_0,
             body.id,
-            body.params.config,
             result ?? {});
     }
 
@@ -38,7 +37,6 @@ export function execute(body, service) {
         return createErrorResponse(
             ProtocolVersion.V2_0,
             body.id,
-            body.params.config,
             err.code ?? ErrorCodes.CONNECTOR_OPERATION_FAILED,
             err.message);
     }

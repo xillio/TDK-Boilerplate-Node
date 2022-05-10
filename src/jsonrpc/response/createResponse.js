@@ -1,9 +1,8 @@
 
-export function createErrorResponse(jsonrpc, id, config, code, message, data) {
+export function createErrorResponse(jsonrpc, id, code, message, data) {
     return {
         jsonrpc,
         id,
-        config,
         error: {
             code,
             message,
@@ -12,11 +11,10 @@ export function createErrorResponse(jsonrpc, id, config, code, message, data) {
     };
 }
 
-export function createSuccessResponse(jsonrpc, id, config, result) {
+export function createSuccessResponse(jsonrpc, id, result) {
     return {
         jsonrpc,
         id,
-        config,
         result
     }
 }

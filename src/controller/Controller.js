@@ -17,7 +17,6 @@ export class Controller {
         return createErrorResponse(
             ProtocolVersion.V2_0,
             body.id,
-            body.params.config,
             ErrorCodes.CONNECTOR_OPERATION_FAILED,
             'Controller failed to execute JSON RPC');
     }

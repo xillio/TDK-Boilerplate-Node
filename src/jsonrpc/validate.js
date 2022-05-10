@@ -34,7 +34,6 @@ export function validate(body) {
         return createErrorResponse(
             ProtocolVersion.V2_0,
             body.id ?? '',
-            body.params?.config ?? {},
             code ?? ErrorCodes.INVALID_CONFIGURATION,
             msg ?? 'Invalid request body',
             data);
