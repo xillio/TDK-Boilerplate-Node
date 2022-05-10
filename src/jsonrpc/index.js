@@ -1,6 +1,7 @@
 
 export * from "./response/createResponse.js";
 export * from "./response/ErrorCodes.js";
+export * from "./EntityKind.js";
 export * from "./execute.js";
 export * from "./Method.js";
 export * from "./ProjectionScope.js";

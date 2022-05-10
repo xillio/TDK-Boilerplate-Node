@@ -1,4 +1,4 @@
-import { ErrorCodes, Method, ProtocolVersion, ProjectionScope, createErrorResponse } from "./index.js";
+import { ErrorCodes, EntityKind, Method, ProtocolVersion, ProjectionScope, createErrorResponse } from "./index.js";
 
 function isNumber(value) {
     return typeof value === 'number';
@@ -65,7 +65,33 @@ export function validate(body) {
         if (!isString(params.xdip))
             return getError('Invalid or missing XDIP parameter');
 
-        // TODO: Do complete XDIP validation.
+        // Validate XDIP as URL.
+        const url = new URL(params.xdip);
+
+        if (url.protocol !== 'xdip:')
+            return getError('XDIP URLs must use the xdip: scheme');
+
+        if (url.username || url.password)
+            return getError('XDIP URLs cannot use user information');
+
+        if (!url.hostname.match(/[a-zA-Z0-9][a-zA-Z0-9-]{0,253}[a-zA-Z0-9]/))
+            return getError(
+                'Configuration ids can only contain alphanumerics and dashes, ' +
+                'cannot start or end with a dash and must be between 2 and 255 characters long');
+
+        if (url.port)
+            return getError('XDIP URLs cannot use port specifications');
+
+        for (const [name, value] of url.searchParams.entries()) {
+            if (!value)
+                return getError('XDIP URLs cannot contain flags as query parameters.');
+
+            if (!['language','version'].includes(name))
+                return getError('XDIP URL contains invalid query parameters.');
+        }
+
+        if (url.hash)
+            return getError('XDIP URLs cannot use fragment parameters');
     }
 
     function validateRequestParameters(params) {
@@ -166,8 +192,8 @@ export function validate(body) {
         if (!isObject(params.entity))
             return getError('Invalid or missing entity parameter');
 
-        if (!isString(params.entity.kind))
-            return getError('Invalid or missing entity kind parameter');
+        if (!Object.values(EntityKind).includes(params.entity.kind))
+            return getError('Unsupported or missing entity kind parameter');
 
         if (!isObject(params.entity.original))
             return getError('Invalid or missing entity original parameter');
