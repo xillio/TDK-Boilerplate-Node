@@ -1,6 +1,10 @@
 
 export default class AbstractService {
 
+    constructor(config) {
+        this.appConfig = config;
+    }
+
     get(_config, _xdip) {
         throw new Error(this.constructor.name + ` 'get' method not implemented`);
     }

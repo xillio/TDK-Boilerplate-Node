@@ -48,7 +48,7 @@ export class Application {
         this.registerEvents();
 
         const service = await import('./service/' + this.config.service + '.js');
-        this.controller = new Controller(new service.default);
+        this.controller = new Controller(new service.default(this.config));
 
         this.express.post(this.config.path, this.handleRequest.bind(this));
         this.express.listen(this.config.port);
