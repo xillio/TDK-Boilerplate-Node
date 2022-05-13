@@ -75,16 +75,16 @@ export default class FileService extends AbstractService {
         return Promise.all(children.map(async (child) => {
             const xdipChild = this.childXdip(xdip, child);
             const pathChild = this.fromXdip(xdipChild);
-            stat = await fs.promises.lstat(pathChild);
+            const statChild = await fs.promises.lstat(pathChild);
 
             return {
                 xdip: xdipChild,
-                isFolder: stat.isDirectory(),
-                created: stat.birthtime,
-                modified: stat.mtime,
+                isFolder: statChild.isDirectory(),
+                created: statChild.birthtime,
+                modified: statChild.mtime,
                 systemName: path.basename(child),
                 rawExtension: path.extname(child),
-                size: stat.size
+                size: statChild.size
             }
         }));
     }
