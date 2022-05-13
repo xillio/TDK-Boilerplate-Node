@@ -24,13 +24,15 @@ export class Application {
     handleRequest(req, res, next) {
         console.log(chalk.bold('Received request @') + chalk.underline(this.config.path) + ' with body:');
         console.dir(req.body, { depth: null });
-        const resValue = this.controller.handleJsonRpcRequest(req.body);
 
-        console.log(chalk.bold('Responding with:'));
-        console.dir(resValue, { depth: null });
-        res.status(200).send(resValue);
+        this.controller.handleJsonRpcRequest(req.body)
+            .then((resValue) => {
+                console.log(chalk.bold('Responding with:'));
+                console.dir(resValue, { depth: null });
+                res.status(200).send(resValue);
 
-        next();
+                next();
+            });
     }
 
     constructor(config) {

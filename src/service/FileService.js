@@ -1,6 +1,6 @@
 import AbstractService from "./AbstractService.js";
 import { RpcError, ErrorCodes } from "../RpcError.js";
-import { lstatSync, readFileSync } from "node:fs";
+import fs from "fs";
 
 export default class FileService extends AbstractService {
 
@@ -20,34 +20,38 @@ export default class FileService extends AbstractService {
         return 'xdip:/' + this.appConfig.path + path.slice(10);
     }
 
-    get(_config, _xdip) {
+    async get(_config, _xdip) {
         // TODO: Implement.
     }
 
-    getChildrenReference(_config, _xdip) {
+    async getChildrenReference(_config, _xdip) {
         // TODO: Implement.
     }
 
-    getChildrenEntity(_config, _xdip) {
+    async getChildrenEntity(_config, _xdip) {
         // TODO: Implement.
     }
 
-    getBinary(_config, xdip) {
+    async getBinary(_config, xdip) {
         const path = this.fromXdip(xdip);
 
         // Check if it exists & if it is a file.
-        const stat = lstatSync(path, { throwIfNoEntry: false });
-        if (!stat)
+        let stat;
+        try {
+            stat = await fs.promises.lstat(path);
+        } catch (_err) {
             throw new RpcError('Entity does not exist', ErrorCodes.NO_SUCH_ENTITY);
+        }
+
         if (!stat.isFile())
             throw new RpcError('Entity not a file', ErrorCodes.NO_BINARY_CONTENT);
 
         // Read contents.
-        const content = readFileSync(path, { encoding: 'utf8' });
+        const content = await fs.promises.readFile(path, { encoding: 'utf8' });
         return Buffer.from(content, 'utf8').toString('base64');
     }
 
-    create(_config, _entity, _binaryContents) {
+    async create(_config, _entity, _binaryContents) {
         // TODO: Implement.
     }
 

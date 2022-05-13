@@ -7,11 +7,11 @@ export class Controller {
     }
 
     // POST endpoint to handle any JSON RPC request.
-    handleJsonRpcRequest(body) {
+    async handleJsonRpcRequest(body) {
         const err = validate(body);
         if (err) return err;
 
-        const res = execute(body, this.service);
+        const res = await execute(body, this.service);
         if (res) return res;
 
         return createErrorResponse(

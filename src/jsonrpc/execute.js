@@ -1,6 +1,6 @@
 import { ErrorCodes, Method, ProtocolVersion, ProjectionScope, createErrorResponse, createSuccessResponse } from "./index.js";
 
-export function execute(body, service) {
+export async function execute(body, service) {
 
     function getResponse(result) {
         return createSuccessResponse(
@@ -16,20 +16,20 @@ export function execute(body, service) {
                 const scope = body.params.requestParameters?.projectionScopes?.[0];
                 switch (scope) {
                     case ProjectionScope.PATH_CHILDREN_REFERENCE:
-                        return getResponse(service.getChildrenReference(body.params.config, body.params.xdip));
+                        return getResponse(await service.getChildrenReference(body.params.config, body.params.xdip));
 
                     case ProjectionScope.PATH_CHILDREN_ENTITY:
-                        return getResponse(service.getChildrenEntity(body.params.config, body.params.xdip));
+                        return getResponse(await service.getChildrenEntity(body.params.config, body.params.xdip));
 
                     default:
-                        return getResponse(service.get(body.params.config, body.params.xdip));
+                        return getResponse(await service.get(body.params.config, body.params.xdip));
                 }
 
             case Method.ENTITY_GET_BINARY:
-                return getResponse(service.getBinary(body.params.config, body.params.xdip) ?? '');
+                return getResponse(await service.getBinary(body.params.config, body.params.xdip) ?? '');
 
             case Method.ENTITY_CREATE:
-                return getResponse(service.create(body.params.config, body.params.entity, body.params.binaryContents));
+                return getResponse(await service.create(body.params.config, body.params.entity, body.params.binaryContents));
         }
 
     } catch (err) {
