@@ -17,9 +17,9 @@ export default class FileService extends AbstractService {
         return './contents' + url.pathname;
     }
 
-    // Path (assumed to start with ./contents) -> XDIP.
-    toXdip(path) {
-        return 'xdip:/' + this.appConfig.path + path.slice(10);
+    // Gets XDIP of a child.
+    childXdip(xdip, child) {
+        return xdip.at(-1) === '/' ? xdip + child : xdip + '/' + child;
     }
 
     async validate(_config) {
@@ -55,12 +55,38 @@ export default class FileService extends AbstractService {
         };
     }
 
-    async getChildrenReference(_config, _xdip) {
-        // TODO: Implement.
-    }
+    async getChildren(_config, xdip) {
+        const xPath = this.fromXdip(xdip);
 
-    async getChildrenEntity(_config, _xdip) {
-        // TODO: Implement.
+        // Check if it exists.
+        let stat;
+        try {
+            stat = await fs.promises.lstat(xPath);
+        } catch (_err) {
+            throw new RpcError('Entity does not exist', ErrorCodes.NO_SUCH_ENTITY);
+        }
+
+        // No folder == no children.
+        if (!stat.isDirectory())
+            return [];
+
+        // Output all child data.
+        const children = await fs.promises.readdir(xPath);
+        return Promise.all(children.map(async (child) => {
+            const xdipChild = this.childXdip(xdip, child);
+            const pathChild = this.fromXdip(xdipChild);
+            stat = await fs.promises.lstat(pathChild);
+
+            return {
+                xdip: xdipChild,
+                isFolder: stat.isDirectory(),
+                created: stat.birthtime,
+                modified: stat.mtime,
+                systemName: path.basename(child),
+                rawExtension: path.extname(child),
+                size: stat.size
+            }
+        }));
     }
 
     async getBinary(_config, xdip) {
@@ -85,7 +111,5 @@ export default class FileService extends AbstractService {
         // TODO: Implement.
     }
 
-    // TODO: Implement navigating/downloading, uploading as no-op.
-    // TODO: Implement some security measure.
     // TODO: Define dockerfile.
 }

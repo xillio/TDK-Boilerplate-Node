@@ -17,12 +17,8 @@ export default class AbstractService {
         throw new Error(this.constructor.name + ` 'get' method not implemented`);
     }
 
-    async getChildrenReference(_config, _xdip) {
-        throw new Error(this.constructor.name + ` 'get' (path_children_reference) method not implemented`);
-    }
-
-    async getChildrenEntity(_config, _xdip) {
-        throw new Error(this.constructor.name + ` 'get' (path_children_entity) method not implemented`);
+    async getChildren(_config, _xdip) {
+        throw new Error(this.constructor.name + ` 'get' (path_children_*) method not implemented`);
     }
 
     async getBinary(_config, _xdip) {

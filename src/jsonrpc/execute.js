@@ -88,12 +88,16 @@ export async function execute(body, service) {
         switch (body.method) {
             case Method.ENTITY_GET:
                 const scope = body.params.requestParameters?.projectionScopes?.[0];
+                result = await service.getChildren(body.params.config, body.params.xdip);
+
                 switch (scope) {
                     case ProjectionScope.PATH_CHILDREN_REFERENCE:
-                        return getResponse(await service.getChildrenReference(body.params.config, body.params.xdip));
+                        result = result.map(asEntity).map(c => { return { id: c.id, xdip: c.xdip } });
+                        return getResponse({ [ProjectionScope.PATH_CHILDREN_REFERENCE]: result });
 
                     case ProjectionScope.PATH_CHILDREN_ENTITY:
-                        return getResponse(await service.getChildrenEntity(body.params.config, body.params.xdip));
+                        result = result.map(asEntity);
+                        return getResponse({ [ProjectionScope.PATH_CHILDREN_ENTITY]: result });
 
                     default:
                         result = await service.get(body.params.config, body.params.xdip);
@@ -105,7 +109,8 @@ export async function execute(body, service) {
                 return getResponse(Buffer.from(result, 'utf8').toString('base64'));
 
             case Method.ENTITY_CREATE:
-                return getResponse(await service.create(body.params.config, body.params.entity, body.params.binaryContents));
+                result = await service.create(body.params.config, body.params.entity, body.params.binaryContents);
+                return getResponse(result); // TODO: Prolly smth else.
         }
 
     } catch (err) {
