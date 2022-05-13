@@ -11,6 +11,7 @@ export async function execute(body, service) {
 
     // Try to execute it and properly respond.
     try {
+        let result;
         switch (body.method) {
             case Method.ENTITY_GET:
                 const scope = body.params.requestParameters?.projectionScopes?.[0];
@@ -26,7 +27,8 @@ export async function execute(body, service) {
                 }
 
             case Method.ENTITY_GET_BINARY:
-                return getResponse(await service.getBinary(body.params.config, body.params.xdip) ?? '');
+                result = await service.getBinary(body.params.config, body.params.xdip) ?? '';
+                return getResponse(Buffer.from(result, 'utf8').toString('base64'));
 
             case Method.ENTITY_CREATE:
                 return getResponse(await service.create(body.params.config, body.params.entity, body.params.binaryContents));

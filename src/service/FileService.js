@@ -47,8 +47,7 @@ export default class FileService extends AbstractService {
             throw new RpcError('Entity not a file', ErrorCodes.NO_BINARY_CONTENT);
 
         // Read contents.
-        const content = await fs.promises.readFile(path, { encoding: 'utf8' });
-        return Buffer.from(content, 'utf8').toString('base64');
+        return await fs.promises.readFile(path, { encoding: 'utf8' });
     }
 
     async create(_config, _entity, _binaryContents) {

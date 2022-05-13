@@ -43,6 +43,8 @@ export class Application {
         this.express.disable('x-powered-by');
         this.express.use(express.json());
         this.express.use(this.handleError.bind(this));
+
+        // TODO: check if utf8 header is added?
     }
 
     async start() {

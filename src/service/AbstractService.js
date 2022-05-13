@@ -5,6 +5,14 @@ export default class AbstractService {
         this.appConfig = config;
     }
 
+    async validate(_config) {
+        // TODO: Implement.
+    }
+
+    async authenticate(_config) {
+        // TODO: Implement.
+    }
+
     async get(_config, _xdip) {
         throw new Error(this.constructor.name + ` 'get' method not implemented`);
     }
