@@ -6,11 +6,11 @@ export default class AbstractService {
     }
 
     async validate(_config) {
-        // TODO: Implement.
+        throw new Error(this.constructor.name + ` 'validate' not implemented`);
     }
 
-    async authenticate(_config) {
-        // TODO: Implement.
+    async authorize(_config) {
+        throw new Error(this.constructor.name + ` 'authorize' not implemented`);
     }
 
     async get(_config, _xdip) {

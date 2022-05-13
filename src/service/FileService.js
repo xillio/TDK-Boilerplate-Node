@@ -20,6 +20,16 @@ export default class FileService extends AbstractService {
         return 'xdip:/' + this.appConfig.path + path.slice(10);
     }
 
+    async validate(_config) {
+        // TODO: Implement.
+        return true;
+    }
+
+    async authorize(_config) {
+        // TODO: Implement.
+        return true;
+    }
+
     async get(_config, _xdip) {
         // TODO: Implement.
     }

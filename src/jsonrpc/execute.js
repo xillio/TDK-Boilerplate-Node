@@ -9,8 +9,23 @@ export async function execute(body, service) {
             result ?? {});
     }
 
-    // Try to execute it and properly respond.
     try {
+        // Firstly validate & authorize.
+        if (!(await service.validate(body.params.config)))
+            return createErrorResponse(
+                ProtocolVersion.V2_0,
+                body.id,
+                ErrorCodes.INVALID_CONFIGURATION,
+                'Invalid config parameter');
+
+        if (!(await service.authorize(body.params.config)))
+            return createErrorResponse(
+                ProtocolVersion.V2_0,
+                body.id,
+                ErrorCodes.AUTHORIZATION_FAILED,
+                'Failed to authorize request');
+
+        // Try to execute it and properly respond.
         let result;
         switch (body.method) {
             case Method.ENTITY_GET:
