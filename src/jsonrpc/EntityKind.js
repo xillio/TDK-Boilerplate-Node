@@ -1,5 +1,5 @@
 
 export const EntityKind = {
-    FILE: "file",
-    FOLDER: "folder"
+    FILE: "File",
+    FOLDER: "Folder"
 };
