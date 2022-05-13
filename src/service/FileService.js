@@ -19,7 +19,7 @@ export default class FileService extends AbstractService {
 
     // Gets XDIP of a child.
     childXdip(xdip, child) {
-        return xdip.at(-1) === '/' ? xdip + child : xdip + '/' + child;
+        return xdip.endsWith('/') ? xdip + child : xdip + '/' + child;
     }
 
     async validate(_config) {
