@@ -6,6 +6,11 @@ import path from "node:path";
 
 export default class FileService extends AbstractService {
 
+    // XDIP + child (both assumed to be valid) -> child XDIP.
+    childXdip(xdip, child) {
+        return xdip.endsWith('/') ? xdip + child : xdip + '/' + child;
+    }
+
     // XDIP (assumed to be valid) -> Path.
     fromXdip(xdip) {
         const url = new URL(xdip);
@@ -15,11 +20,6 @@ export default class FileService extends AbstractService {
             throw new RpcError('Configuration id unknown', ErrorCodes.INVALID_CONFIGURATION);
 
         return './contents' + url.pathname;
-    }
-
-    // Gets XDIP of a child.
-    childXdip(xdip, child) {
-        return xdip.endsWith('/') ? xdip + child : xdip + '/' + child;
     }
 
     async validate(_config) {

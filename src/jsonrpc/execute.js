@@ -93,7 +93,7 @@ export async function execute(body, service) {
 
                 switch (scope) {
                     case ProjectionScope.PATH_CHILDREN_REFERENCE:
-                        result = result.map(asEntity).map(c => { return { id: c.id, xdip: c.xdip } });
+                        result = result.map(asEntity).map(({ id, xdip }) => { return { id, xdip }; });
                         return getResponse({ [ProjectionScope.PATH_CHILDREN_REFERENCE]: result });
 
                     case ProjectionScope.PATH_CHILDREN_ENTITY:
