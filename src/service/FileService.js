@@ -50,7 +50,6 @@ export default class FileService extends AbstractService {
             created: stat.birthtime,
             modified: stat.mtime,
             systemName: path.basename(xPath),
-            rawExtension: path.extname(xPath),
             size: stat.size
         };
     }
@@ -83,7 +82,6 @@ export default class FileService extends AbstractService {
                 created: statChild.birthtime,
                 modified: statChild.mtime,
                 systemName: path.basename(child),
-                rawExtension: path.extname(child),
                 size: statChild.size
             }
         }));

@@ -28,11 +28,11 @@ function asEntity(input) {
         },
 
         mimeType: isFolder ? undefined : {
-            type: mime.lookup(input.systemName) || 'application/octet-stream'
+            type: input.mimeType ?? (mime.lookup(input.systemName) || 'application/octet-stream')
         },
 
         file: isFolder ? undefined : {
-            rawExtension: input.rawExtension,
+            rawExtension: input.rawExtension ?? path.extname(input.systemName),
             size: input.size
         },
 
