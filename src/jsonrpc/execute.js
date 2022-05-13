@@ -1,4 +1,62 @@
-import { ErrorCodes, Method, ProtocolVersion, ProjectionScope, createErrorResponse, createSuccessResponse } from "./index.js";
+import { ErrorCodes, EntityKind, Method, ProtocolVersion, ProjectionScope, createErrorResponse, createSuccessResponse } from "./index.js";
+import path from "node:path";
+
+function asDate(value) {
+    return (value instanceof Date) ? value : Date.parse(value);
+}
+
+function asEntity(input) {
+    const isFile = !input.isFolder;
+    const isFolder = input.isFolder;
+
+    const decorators = {
+        container: isFile ? undefined : {
+            hasChildren: true
+        },
+
+        contentType: {
+            systemName: isFile ? EntityKind.FILE : EntityKind.FOLDER
+        },
+
+        created: {
+            date: asDate(input.created).toISOString()
+        },
+
+        language: isFolder ? undefined : {
+            tag: 'en-US'
+        },
+
+        mimeType: isFolder ? undefined : {
+            type: '' // TODO: Fill in based on input.systemName.
+        },
+
+        file: isFolder ? undefined : {
+            rawExtension: input.rawExtension,
+            size: input.size
+        },
+
+        modified: {
+            date: asDate(input.modified).toISOString()
+        },
+
+        name: {
+            displayName: input.displayName,
+            systemName: input.systemName
+        },
+
+        parent: {
+            id: path.dirname(input.xdip)
+        }
+    };
+
+    return {
+        id: input.xdip,
+        xdip: input.xdip,
+        kind: isFile ? EntityKind.FILE : EntityKind.FOLDER,
+        original: decorators,
+        modified: decorators
+    }
+}
 
 export async function execute(body, service) {
 
@@ -38,7 +96,8 @@ export async function execute(body, service) {
                         return getResponse(await service.getChildrenEntity(body.params.config, body.params.xdip));
 
                     default:
-                        return getResponse(await service.get(body.params.config, body.params.xdip));
+                        result = await service.get(body.params.config, body.params.xdip);
+                        return getResponse(asEntity(result));
                 }
 
             case Method.ENTITY_GET_BINARY:

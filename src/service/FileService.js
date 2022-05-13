@@ -1,5 +1,4 @@
 import AbstractService from "./AbstractService.js";
-import { EntityKind } from "../jsonrpc/index.js";
 import { RpcError, ErrorCodes } from "../RpcError.js";
 
 import fs from "node:fs";
@@ -44,20 +43,15 @@ export default class FileService extends AbstractService {
             throw new RpcError('Entity does not exist', ErrorCodes.NO_SUCH_ENTITY);
         }
 
-        // TODO: Output less data and construct object automatically.
         // Output data.
-        const isFile = stat.isFile();
-
         return {
-            container: isFile ? undefined : { hasChildren: true },
-            contentType: { systemName: isFile ? EntityKind.FILE : EntityKind.FOLDER },
-            created: { date: stat.birthtime.toISOString() },
-            language: isFile ? { tag: 'en-US' } : undefined,
-            mimeType: isFile ? { type: '' } : undefined, // TODO: Fill in, use mime-types package?
-            file: isFile ? { rawExtension: path.extname(xPath), size: stat.size } : undefined,
-            modified: { date: stat.mtime.toISOString() },
-            name: { systemName: path.basename(xPath) },
-            parent: { id: path.dirname(xdip) }
+            xdip: xdip,
+            isFolder: stat.isDirectory(),
+            created: stat.birthtime,
+            modified: stat.mtime,
+            systemName: path.basename(xPath),
+            rawExtension: path.extname(xPath),
+            size: stat.size
         };
     }
 
