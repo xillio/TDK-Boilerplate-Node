@@ -66,8 +66,7 @@ export default class FileService extends AbstractService {
         }
 
         // No folder == no children.
-        if (!stat.isDirectory())
-            return [];
+        if (!stat.isDirectory()) return [];
 
         // Output all child data.
         const children = await fs.promises.readdir(xPath);

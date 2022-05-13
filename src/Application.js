@@ -32,7 +32,9 @@ export class Application {
                 res.status(200).send(resValue);
 
                 next();
-            });
+            })
+            // Should not happen, just in case.
+            .catch((err) => next(err));
     }
 
     constructor(config) {

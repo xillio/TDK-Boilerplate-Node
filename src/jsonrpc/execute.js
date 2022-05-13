@@ -89,14 +89,14 @@ export async function execute(body, service) {
         switch (body.method) {
             case Method.ENTITY_GET:
                 const scope = body.params.requestParameters?.projectionScopes?.[0];
-                result = await service.getChildren(body.params.config, body.params.xdip);
-
                 switch (scope) {
                     case ProjectionScope.PATH_CHILDREN_REFERENCE:
-                        result = result.map(asEntity).map(({ id, xdip }) => { return { id, xdip }; });
+                        result = await service.getChildren(body.params.config, body.params.xdip);
+                        result = result.map(asEntity).map(({ id, xdip }) => { return { id, xdip }});
                         return getResponse({ [ProjectionScope.PATH_CHILDREN_REFERENCE]: result });
 
                     case ProjectionScope.PATH_CHILDREN_ENTITY:
+                        result = await service.getChildren(body.params.config, body.params.xdip);
                         result = result.map(asEntity);
                         return getResponse({ [ProjectionScope.PATH_CHILDREN_ENTITY]: result });
 
