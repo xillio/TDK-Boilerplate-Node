@@ -1,4 +1,5 @@
 import { ErrorCodes, EntityKind, Method, ProtocolVersion, ProjectionScope, createErrorResponse, createSuccessResponse } from "./index.js";
+import mime from "mime-types";
 import path from "node:path";
 
 function asDate(value) {
@@ -27,7 +28,7 @@ function asEntity(input) {
         },
 
         mimeType: isFolder ? undefined : {
-            type: '' // TODO: Fill in based on input.systemName.
+            type: mime.lookup(input.systemName) || 'application/octet-stream'
         },
 
         file: isFolder ? undefined : {
