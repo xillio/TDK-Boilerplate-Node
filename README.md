@@ -27,3 +27,17 @@ The service needs to implement the following functions:
 - `create`
 
 To use the newly created service, or adjust other settings such as the exposed port or path to the endpoint, see `src/server.js`. A configuration object is passed to the application. This can be freely modified. The `service` property defines what file in `src/service/` to use as active service.
+
+## Building an image
+
+To build a docker image, run:
+```
+docker build -t <image_name>
+```
+
+To run the image (`<configured port>` being the port set in `src/server.js`):
+```
+docker run -p 8080:<configured_port> <image_name>
+```
+
+The built container will expose port 8080 by default, this can be changed in `Dockerfile`.
