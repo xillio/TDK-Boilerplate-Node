@@ -3,7 +3,8 @@ import mime from "mime-types";
 import path from "node:path";
 
 function asDate(value) {
-    return (value instanceof Date) ? value : Date.parse(value);
+    const date = (value instanceof Date) ? value : Date.parse(value);
+    return (date instanceof Date) ? date : new Date();
 }
 
 function asEntity(input) {
@@ -32,8 +33,8 @@ function asEntity(input) {
         },
 
         file: isFolder ? undefined : {
-            rawExtension: input.rawExtension ?? path.extname(input.systemName),
-            size: input.size
+            rawExtension: input.rawExtension ?? path.extname(input.systemName ?? ''),
+            size: input.size ?? 0
         },
 
         modified: {
@@ -46,13 +47,13 @@ function asEntity(input) {
         },
 
         parent: {
-            id: path.dirname(input.xdip)
+            id: path.dirname(input.xdip ?? '')
         }
     };
 
     return {
-        id: input.xdip,
-        xdip: input.xdip,
+        id: input.xdip ?? '',
+        xdip: input.xdip ?? '',
         kind: isFile ? EntityKind.FILE : EntityKind.FOLDER,
         original: decorators,
         modified: decorators

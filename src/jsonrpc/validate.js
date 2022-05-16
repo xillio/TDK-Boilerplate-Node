@@ -202,6 +202,14 @@ export function validate(body) {
             const err = validateDecorator(name, decParams);
             if (err) return err;
         }
+
+        // TODO: What decorators are even required?
+        if (!params.entity.original.name)
+            return getError('Missing decorator', ErrorCodes.MISSING_DECORATOR, { decorator: 'name' });
+
+        if (!params.entity.original.language)
+            return getError('Missing decorator', ErrorCodes.MISSING_DECORATOR, { decorator: 'language' });
+
     }
 
     function validateBinaryContents(params) {

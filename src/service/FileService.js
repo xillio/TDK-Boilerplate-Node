@@ -22,13 +22,16 @@ export default class FileService extends AbstractService {
         return './contents' + url.pathname;
     }
 
+    // Path (assumed to start with ./contents/) -> XDIP.
+    toXdip(xPath) {
+        return 'xdip:/' + this.appConfig.path + xPath.slice(10);
+    }
+
     async validate(_config) {
-        // TODO: Implement.
         return true;
     }
 
     async authorize(_config) {
-        // TODO: Implement.
         return true;
     }
 
@@ -104,9 +107,14 @@ export default class FileService extends AbstractService {
         return await fs.promises.readFile(xPath, { encoding: 'utf8' });
     }
 
-    async create(_config, _entity, _binaryContents) {
-        // TODO: Implement.
-    }
+    async create(_config, entity, _binaryContents) {
+        const xPath = './contents/' + entity.original.name.systemName;
 
-    // TODO: Define dockerfile.
+        // Currently we do nothing and return successfully,
+        // this needs to be implemented!
+        return {
+            xdip: this.toXdip(xPath),
+            systemName: entity.original.name.systemName
+        };
+    }
 }
