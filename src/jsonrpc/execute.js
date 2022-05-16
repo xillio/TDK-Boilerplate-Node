@@ -88,22 +88,26 @@ export async function execute(body, service) {
         let result;
         switch (body.method) {
             case Method.ENTITY_GET:
-                const scope = body.params.requestParameters?.projectionScopes?.[0];
+                let scope = body.params.requestParameters?.projectionScopes?.[0];
                 switch (scope) {
                     case ProjectionScope.PATH_CHILDREN_REFERENCE:
                         result = await service.getChildren(body.params.config, body.params.xdip);
-                        result = result.map(asEntity).map(({ id, xdip }) => { return { id, xdip }});
-                        return getResponse({ [ProjectionScope.PATH_CHILDREN_REFERENCE]: result });
+                        result = result.map(asEntity).map(({ id }) => { return { id }});
+                        break;
 
                     case ProjectionScope.PATH_CHILDREN_ENTITY:
                         result = await service.getChildren(body.params.config, body.params.xdip);
                         result = result.map(asEntity);
-                        return getResponse({ [ProjectionScope.PATH_CHILDREN_ENTITY]: result });
+                        break;
 
                     default:
                         result = await service.get(body.params.config, body.params.xdip);
-                        return getResponse(asEntity(result));
+                        result = asEntity(result);
+                        scope = ProjectionScope.ENTITY; // In case it is undefined.
+                        break;
                 }
+
+                return getResponse({ [scope]: result });
 
             case Method.ENTITY_GET_BINARY:
                 result = await service.getBinary(body.params.config, body.params.xdip) ?? '';
@@ -111,7 +115,7 @@ export async function execute(body, service) {
 
             case Method.ENTITY_CREATE:
                 result = await service.create(body.params.config, body.params.entity, body.params.binaryContents);
-                return getResponse(result); // TODO: Prolly smth else.
+                return getResponse({ entity: asEntity(result) });
         }
 
     } catch (err) {
