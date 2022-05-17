@@ -37,7 +37,7 @@ To use the newly created service, or adjust other settings such as the exposed p
 
 To build a docker image, run:
 ```
-docker build -t <image_name>
+docker build -t <image_name> .
 ```
 
 To run the image (`<configured port>` being the port set in `src/server.js`):
