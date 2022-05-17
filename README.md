@@ -16,6 +16,11 @@ The TDK supports the following operations:
 
 ## How to use
 
+As a simple test, the server can be started as follows:
+```
+npm install && npm start
+```
+
 To implement your own connector, simply add another service in `src/service/` that extends `src/service/AbstractService.js`. An example can be found in `src/service/FileService.js`.
 
 The service needs to implement the following functions:
