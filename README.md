@@ -47,5 +47,5 @@ docker run -p 8080:<configured_port> -v <host_path>:/contents <image_name>
 
 The built container will expose port 8080 by default, this can be changed in `Dockerfile`. The `-v` option can be given to mount a host directory to the `/contents` folder in the container. This folder is used by the default `FileService` as repository. If running from the root of this git repository:
 ```
-docker run -p 8080:8000 -v $(pwd)/contents:/contents <image_name>
+docker run -p 8080:8080 -v $(pwd)/contents:/contents <image_name>
 ```
