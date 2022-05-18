@@ -20,25 +20,8 @@ export class Application {
             err.message));
     }
 
-    // Request handler.
-    handleRequest(req, res, next) {
-        console.log(chalk.bold('Received request @') + chalk.underline(this.config.path) + ' with body:');
-        console.dir(req.body, { depth: null });
-
-        this.controller.handleJsonRpcRequest(req.body)
-            .then((resValue) => {
-                console.log(chalk.bold('Responding with:'));
-                console.dir(resValue, { depth: null });
-                res.status(200).send(resValue);
-            })
-            // Should not happen, just in case.
-            .catch((err) => next(err));
-    }
-
     constructor(config) {
         this.config = config;
-        this.controller = null;
-
         this.express = express();
         this.express.disable('x-powered-by');
         this.express.use(express.json());
@@ -53,9 +36,9 @@ export class Application {
         this.registerEvents();
 
         const service = await import('./service/' + this.config.service + '.js');
-        this.controller = new Controller(new service.default(this.config));
+        const controller = new Controller(this.config, new service.default(this.config));
 
-        this.express.post(this.config.path, this.handleRequest.bind(this));
+        this.express.post(this.config.path, controller.handleRequest.bind(controller));
         this.express.listen(this.config.port);
     }
 
