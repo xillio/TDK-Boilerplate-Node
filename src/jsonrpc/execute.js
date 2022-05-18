@@ -69,6 +69,45 @@ export async function execute(body, service) {
             result ?? {});
     }
 
+    // 'entity.get'
+    async function entityGet() {
+        let scope = body.params.requestParameters?.projectionScopes?.[0];
+        let result;
+
+        // Check scope and build response accordingly.
+        switch (scope) {
+            case ProjectionScope.PATH_CHILDREN_REFERENCE:
+                result = await service.getChildren(body.params.config, body.params.xdip);
+                result = result.map(asEntity).map(({ id }) => { return { id }});
+                break;
+
+            case ProjectionScope.PATH_CHILDREN_ENTITY:
+                result = await service.getChildren(body.params.config, body.params.xdip);
+                result = result.map(asEntity);
+                break;
+
+            default:
+                result = await service.get(body.params.config, body.params.xdip);
+                result = asEntity(result);
+                scope = ProjectionScope.ENTITY; // In case it is undefined.
+                break;
+        }
+
+        return { [scope]: result };
+    }
+
+    // 'entity.get-binary'
+    async function entityGetBinary() {
+        const result = await service.getBinary(body.params.config, body.params.xdip);
+        return Buffer.from(result ?? '', 'utf8').toString('base64');
+    }
+
+    // 'entity.create'
+    async function entityCreate() {
+        const result = await service.create(body.params.config, body.params.entity, body.params.binaryContents);
+        return { entity: asEntity(result) };
+    }
+
     try {
         // Firstly validate & authorize.
         if (!(await service.validate(body.params.config)))
@@ -86,37 +125,17 @@ export async function execute(body, service) {
                 'Failed to authorize request');
 
         // Try to execute it and properly respond.
-        let result;
         switch (body.method) {
             case Method.ENTITY_GET:
-                let scope = body.params.requestParameters?.projectionScopes?.[0];
-                switch (scope) {
-                    case ProjectionScope.PATH_CHILDREN_REFERENCE:
-                        result = await service.getChildren(body.params.config, body.params.xdip);
-                        result = result.map(asEntity).map(({ id }) => { return { id }});
-                        break;
-
-                    case ProjectionScope.PATH_CHILDREN_ENTITY:
-                        result = await service.getChildren(body.params.config, body.params.xdip);
-                        result = result.map(asEntity);
-                        break;
-
-                    default:
-                        result = await service.get(body.params.config, body.params.xdip);
-                        result = asEntity(result);
-                        scope = ProjectionScope.ENTITY; // In case it is undefined.
-                        break;
-                }
-
-                return getResponse({ [scope]: result });
+                return getResponse(await entityGet());
 
             case Method.ENTITY_GET_BINARY:
-                result = await service.getBinary(body.params.config, body.params.xdip) ?? '';
-                return getResponse(Buffer.from(result, 'utf8').toString('base64'));
+                return getResponse(await entityGetBinary());
 
             case Method.ENTITY_CREATE:
-                result = await service.create(body.params.config, body.params.entity, body.params.binaryContents);
-                return getResponse({ entity: asEntity(result) });
+                return getResponse(await entityCreate());
+
+            // Default is to return nothing.
         }
 
     } catch (err) {

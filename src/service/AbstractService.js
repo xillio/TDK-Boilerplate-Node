@@ -2,6 +2,9 @@
 export default class AbstractService {
 
     constructor(config) {
+        if (this.constructor.name === AbstractService.name)
+            throw new Error(`Cannot make an instance of '` + AbstractService.name + `'`);
+
         this.appConfig = config;
     }
 

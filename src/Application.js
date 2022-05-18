@@ -30,8 +30,6 @@ export class Application {
                 console.log(chalk.bold('Responding with:'));
                 console.dir(resValue, { depth: null });
                 res.status(200).send(resValue);
-
-                next();
             })
             // Should not happen, just in case.
             .catch((err) => next(err));
