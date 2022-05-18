@@ -44,6 +44,7 @@ export class Application {
         this.express.use(express.json());
         this.express.use(this.handleError.bind(this));
 
+        // TODO: What about https? Note in readme?
         // TODO: check if utf8 header is added?
     }
 
