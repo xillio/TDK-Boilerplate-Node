@@ -33,6 +33,8 @@ The service needs to implement the following functions:
 
 To use the newly created service, or adjust other settings such as the exposed port or path to the endpoint, see `src/server.js`. A configuration object is passed to the application. This can be freely modified. The `service` property defines what file in `src/service/` to use as active service.
 
+The application currently only runs under HTTP. Implementing HTTPS could be achieved in several ways, either implement it in the codebase yourself or setup a proxy.
+
 ## Building an image
 
 To build a docker image, run:
