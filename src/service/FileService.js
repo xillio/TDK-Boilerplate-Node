@@ -17,7 +17,7 @@ export default class FileService extends AbstractService {
 
         // Validate configuration id.
         if ('/' + url.hostname !== this.appConfig.path)
-            throw new RpcError('Configuration id unknown', ErrorCodes.INVALID_CONFIGURATION);
+            throw new RpcError(ErrorCodes.INVALID_CONFIGURATION);
 
         return './contents' + url.pathname;
     }
@@ -43,7 +43,7 @@ export default class FileService extends AbstractService {
         try {
             stat = await fs.promises.lstat(xPath);
         } catch (_err) {
-            throw new RpcError('Entity does not exist', ErrorCodes.NO_SUCH_ENTITY);
+            throw new RpcError(ErrorCodes.NO_SUCH_ENTITY);
         }
 
         // Output data.
@@ -65,7 +65,7 @@ export default class FileService extends AbstractService {
         try {
             stat = await fs.promises.lstat(xPath);
         } catch (_err) {
-            throw new RpcError('Entity does not exist', ErrorCodes.NO_SUCH_ENTITY);
+            throw new RpcError(ErrorCodes.NO_SUCH_ENTITY);
         }
 
         // No folder == no children.
@@ -97,11 +97,11 @@ export default class FileService extends AbstractService {
         try {
             stat = await fs.promises.lstat(xPath);
         } catch (_err) {
-            throw new RpcError('Entity does not exist', ErrorCodes.NO_SUCH_ENTITY);
+            throw new RpcError(ErrorCodes.NO_SUCH_ENTITY);
         }
 
         if (!stat.isFile())
-            throw new RpcError('Entity not a file', ErrorCodes.NO_BINARY_CONTENT);
+            throw new RpcError(ErrorCodes.NO_BINARY_CONTENT);
 
         // Read contents.
         return await fs.promises.readFile(xPath, { encoding: 'utf8' });

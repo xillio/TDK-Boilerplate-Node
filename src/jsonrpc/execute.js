@@ -104,7 +104,8 @@ export async function execute(body, service) {
 
     // 'entity.create'
     async function entityCreate() {
-        const result = await service.create(body.params.config, body.params.entity, body.params.binaryContents);
+        const bin = Buffer.from(body.params.binaryContents ?? '', 'base64').toString('utf8');
+        const result = await service.create(body.params.config, body.params.entity, bin);
         return { entity: asEntity(result) };
     }
 
