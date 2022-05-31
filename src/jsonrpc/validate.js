@@ -203,7 +203,6 @@ export function validate(body) {
             if (err) return err;
         }
 
-        // TODO: What decorators are even required?
         if (!params.entity.original.name)
             return getError('Missing decorator', ErrorCodes.MISSING_DECORATOR, { decorator: 'name' });
 
