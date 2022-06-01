@@ -66,7 +66,12 @@ export function validate(body) {
             return getError('Invalid or missing XDIP parameter');
 
         // Validate XDIP as URL.
-        const url = new URL(params.xdip);
+        let url;
+        try {
+            url = new URL(params.xdip);
+        } catch (_) {
+            return getError('XDIP parameter must be an URI');
+        }
 
         if (url.protocol !== 'xdip:')
             return getError('XDIP URLs must use the xdip: scheme');
