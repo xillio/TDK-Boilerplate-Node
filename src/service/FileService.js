@@ -15,10 +15,6 @@ export default class FileService extends AbstractService {
     fromXdip(xdip) {
         const url = new URL(xdip);
 
-        // Validate configuration id.
-        if ('/' + url.hostname !== this.appConfig.path)
-            throw new RpcError(ErrorCodes.INVALID_CONFIGURATION);
-
         return './contents' + url.pathname;
     }
 
