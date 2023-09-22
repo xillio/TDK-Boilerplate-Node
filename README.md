@@ -24,7 +24,9 @@ We recommend reading our TDK Documentation first. You will learn the overall des
 
 But using the boilerplate project like this is much easier. You need to implement only the communication with your repository and optionally also validation of your custom configuration and the boilerplate takes care about the rest (error handling, parsing the JSON RPC requests, building the JSON RPC responses, etc.)
 
-To implement your own connector, simply add another service in `src/service/` that extends `src/service/AbstractService.js`. An example can be found in `src/service/FileService.js`.
+To implement your own connector, 
+- in `src/connector/` implement new service that extends `src/connector/AbstractService.js` (an example can be found in `FileService.js`),
+- in `src/server/server.js` reference the new service and set the port of the server and the route to expose.
 
 The service needs to implement the following functions:
 - `validate`
@@ -34,13 +36,11 @@ The service needs to implement the following functions:
 - `getBinary`
 - `create`
 
-To use the newly created service, or adjust other settings such as the exposed port or path to the endpoint, see `src/server.js`. A configuration object is passed to the application. This can be freely modified. The `service` property defines what file in `src/service/` to use as active service.
-
 As a simple test, the server can be started as follows:
 ```
 npm install && npm start
 ```
-The application currently only runs under HTTP. Implementing HTTPS could be achieved in several ways, either implement it in the codebase yourself or setup a proxy.
+The application currently only runs under HTTP. Implementing HTTPS could be achieved in several ways, either implement it in the codebase yourself or set up a proxy.
 
 ## Building a Docker image
 

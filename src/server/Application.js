@@ -32,7 +32,7 @@ export class Application {
         console.log(chalk.bold('Starting ' + this.config.service + ' @') + chalk.underline(this.config.path));
         this.registerEvents();
 
-        const service = await import('./service/' + this.config.service + '.js');
+        const service = await import('../connector/' + this.config.service + '.js');
         const controller = new Controller(this.config, new service.default(this.config));
 
         this.express.post(this.config.path, controller.handleRequest.bind(controller));

@@ -1,5 +1,5 @@
 import AbstractService from "./AbstractService.js";
-import { RpcError, ErrorCodes } from "../RpcError.js";
+import { RpcError, ErrorCodes } from "../server/RpcError.js";
 
 import fs from "node:fs";
 import path from "node:path";
