@@ -1,8 +1,13 @@
 import AbstractService from "./AbstractService.js";
-import { RpcError, ErrorCodes } from "../server/RpcError.js";
 
 import fs from "node:fs";
 import path from "node:path";
+import FolderEntity from "./model/FolderEntity.js";
+import FileEntity from "./model/FileEntity.js";
+import mime from "mime-types";
+import OperationNotAllowedError from "../server/errors/OperationNotAllowedError.js";
+import NoSuchEntityError from "../server/errors/NoSuchEntityError.js";
+import NoBinaryContentError from "../server/errors/NoBinaryContentError.js";
 
 export default class FileService extends AbstractService {
 
@@ -39,18 +44,40 @@ export default class FileService extends AbstractService {
         try {
             stat = await fs.promises.lstat(xPath);
         } catch (_err) {
-            throw new RpcError(ErrorCodes.NO_SUCH_ENTITY);
+            throw new NoSuchEntityError(xdip);
         }
 
-        // Output data.
-        return {
-            xdip: xdip,
-            isFolder: stat.isDirectory(),
-            created: stat.birthtime,
-            modified: stat.mtime,
-            systemName: path.basename(xPath),
-            size: stat.size
-        };
+        return stat.isDirectory()
+            ? this.createFolderFromStat(xdip, stat)
+            : this.createFileFromStat(xdip, stat);
+    }
+
+    createFolderFromStat(xdip, stat) {
+        const xPath = this.fromXdip(xdip);
+        const systemName = path.basename(xPath);
+        const parentXdip =  path.dirname(xdip ?? '');
+
+        const entity = new FolderEntity(xdip, systemName, parentXdip);
+        entity.created = stat.birthtime;
+        entity.modified = stat.mtime;
+
+        return entity;
+    }
+
+    createFileFromStat(xdip, stat) {
+        const xPath = this.fromXdip(xdip);
+        const systemName = path.basename(xPath);
+        const parentXdip =  path.dirname(xdip ?? '');
+
+        const entity = new FileEntity(xdip, systemName, parentXdip);
+        entity.created = stat.birthtime;
+        entity.modified = stat.mtime;
+        entity.rawExtension = path.extname(systemName ?? '');
+        entity.mimeType = mime.lookup(systemName) || 'application/octet-stream';
+        entity.size = stat.size;
+        entity.language = 'en-US';
+
+        return entity;
     }
 
     async getChildren(_config, xdip) {
@@ -61,11 +88,12 @@ export default class FileService extends AbstractService {
         try {
             stat = await fs.promises.lstat(xPath);
         } catch (_err) {
-            throw new RpcError(ErrorCodes.NO_SUCH_ENTITY);
+            throw new NoSuchEntityError(xdip);
         }
 
-        // No folder == no children.
-        if (!stat.isDirectory()) return [];
+        if (!stat.isDirectory()) {
+            throw new OperationNotAllowedError('Listing children is supported only for folders.');
+        }
 
         // Output all child data.
         const children = await fs.promises.readdir(xPath);
@@ -74,14 +102,9 @@ export default class FileService extends AbstractService {
             const pathChild = this.fromXdip(xdipChild);
             const statChild = await fs.promises.lstat(pathChild);
 
-            return {
-                xdip: xdipChild,
-                isFolder: statChild.isDirectory(),
-                created: statChild.birthtime,
-                modified: statChild.mtime,
-                systemName: path.basename(child),
-                size: statChild.size
-            }
+            return statChild.isDirectory()
+                ? this.createFolderFromStat(xdipChild, statChild)
+                : this.createFileFromStat(xdipChild, statChild);
         }));
     }
 
@@ -93,11 +116,11 @@ export default class FileService extends AbstractService {
         try {
             stat = await fs.promises.lstat(xPath);
         } catch (_err) {
-            throw new RpcError(ErrorCodes.NO_SUCH_ENTITY);
+            throw new NoSuchEntityError(xdip);
         }
 
         if (!stat.isFile())
-            throw new RpcError(ErrorCodes.NO_BINARY_CONTENT);
+            throw new NoBinaryContentError(xdip);
 
         // Read contents.
         return await fs.promises.readFile(xPath, { encoding: 'utf8' });

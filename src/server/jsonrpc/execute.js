@@ -7,54 +7,54 @@ function asDate(value) {
     return (date instanceof Date) ? date : new Date();
 }
 
-function asEntity(input) {
-    const isFile = !input.isFolder;
-    const isFolder = input.isFolder;
+function asLocHubEntity(input) {
+    const isContainer = input.isContainer;
+    const hasContent = input.hasContent;
 
     const decorators = {
-        container: isFile ? undefined : {
+        container: !isContainer ? undefined : {
             hasChildren: true
         },
 
         contentType: {
-            systemName: isFile ? EntityKind.FILE : EntityKind.FOLDER
+            systemName: input.contentType
         },
 
-        created: {
+        created: !input.created ? undefined : {
             date: asDate(input.created).toISOString()
         },
 
-        language: isFolder ? undefined : {
-            tag: 'en-US'
+        language: !input.language ? undefined : {
+            tag: input.language
         },
 
-        mimeType: isFolder ? undefined : {
-            type: input.mimeType ?? (mime.lookup(input.systemName) || 'application/octet-stream')
+        mimeType: !hasContent ? undefined : {
+            type: input.mimeType ?? 'application/octet-stream'
         },
 
-        file: isFolder ? undefined : {
-            rawExtension: input.rawExtension ?? path.extname(input.systemName ?? ''),
+        file: !hasContent ? undefined : {
+            rawExtension: input.rawExtension ?? '',
             size: input.size ?? 0
         },
 
-        modified: {
+        modified: !input.modified ? undefined : {
             date: asDate(input.modified).toISOString()
         },
 
         name: {
-            displayName: input.displayName,
+            displayName: input.displayName ?? input.systemName,
             systemName: input.systemName
         },
 
         parent: {
-            id: path.dirname(input.xdip ?? '')
+            id: input.parentXdip
         }
     };
 
     return {
-        id: input.xdip ?? '',
-        xdip: input.xdip ?? '',
-        kind: isFile ? EntityKind.FILE : EntityKind.FOLDER,
+        id: input.xdip,
+        xdip: input.xdip,
+        kind: input.kind,
         original: decorators,
         modified: decorators
     }
@@ -78,17 +78,17 @@ export async function execute(body, service) {
         switch (scope) {
             case ProjectionScope.PATH_CHILDREN_REFERENCE:
                 result = await service.getChildren(body.params.config, body.params.xdip);
-                result = result.map(asEntity).map(({ id }) => { return { id }});
+                result = result.map(asLocHubEntity).map(({ id }) => { return { id }});
                 break;
 
             case ProjectionScope.PATH_CHILDREN_ENTITY:
                 result = await service.getChildren(body.params.config, body.params.xdip);
-                result = result.map(asEntity);
+                result = result.map(asLocHubEntity);
                 break;
 
             default:
                 result = await service.get(body.params.config, body.params.xdip);
-                result = asEntity(result);
+                result = asLocHubEntity(result);
                 scope = ProjectionScope.ENTITY; // In case it is undefined.
                 break;
         }
@@ -106,7 +106,7 @@ export async function execute(body, service) {
     async function entityCreate() {
         const bin = Buffer.from(body.params.binaryContents ?? '', 'base64').toString('utf8');
         const result = await service.create(body.params.config, body.params.entity, bin);
-        return { entity: asEntity(result) };
+        return { entity: asLocHubEntity(result) };
     }
 
     try {
