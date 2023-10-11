@@ -119,6 +119,8 @@ export function validate(body) {
     }
 
     function validateDecorator(name, params) {
+        if (params === null) return;
+
         if (!isObject(params))
             return getError(`Invalid decorator: '` + name + `'`);
 
@@ -196,9 +198,6 @@ export function validate(body) {
     function validateEntity(params) {
         if (!isObject(params.entity))
             return getError('Invalid or missing entity parameter');
-
-        if (!Object.values(EntityKind).includes(params.entity.kind))
-            return getError('Unsupported or missing entity kind parameter');
 
         if (!isObject(params.entity.original))
             return getError('Invalid or missing entity original parameter');
