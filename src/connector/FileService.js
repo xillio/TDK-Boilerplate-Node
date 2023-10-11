@@ -72,7 +72,7 @@ export default class FileService extends AbstractService {
         const entity = new FileEntity(xdip, systemName, parentXdip);
         entity.created = stat.birthtime;
         entity.modified = stat.mtime;
-        entity.rawExtension = path.extname(systemName ?? '');
+        entity.rawExtension = path.extname(systemName ?? '').substring(1);
         entity.mimeType = mime.lookup(systemName) || 'application/octet-stream';
         entity.size = stat.size;
         entity.language = 'en-US';
