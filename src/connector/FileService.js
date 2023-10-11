@@ -131,9 +131,10 @@ export default class FileService extends AbstractService {
 
         // Currently we do nothing and return successfully,
         // this needs to be implemented!
-        return {
-            xdip: this.toXdip(xPath),
-            systemName: entity.original.name.systemName
-        };
+        return new FileEntity(
+            entity.original.language.translationOf,
+            entity.original.name.systemName,
+            entity.original.language.translationOf
+        );
     }
 }
